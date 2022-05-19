@@ -16,7 +16,7 @@ void CopyTillComma(char* destination, string source, int& i)
 void StringCopy(char* destination, string source, int& i)
 {
 	int index = 0;
-	for(index = 0; source[i] != '\0'; i++)
+	for (index = 0; source[i] != '\0'; i++)
 	{
 		destination[index] = source[i];
 		index++;
@@ -64,6 +64,10 @@ public:
 	char** DueDate = 0;
 	char** Status = 0;
 	char** PaymentDate = 0;
+	int paid_bill = 0;
+	int unpaid_bill = 0;
+	int paidbill = 0;
+	int unpaidbill = 0;
 	Bill()
 	{
 		string bill;
@@ -132,6 +136,7 @@ public:
 		{
 			Status[i] = new char[7];
 		}
+
 		PaymentDate = new char* [totalBills];
 		for (int i = 0; i < totalBills; i++)
 		{
@@ -169,9 +174,26 @@ public:
 			i += 2;
 			CopyTillComma(Status[number], bill, i);
 			i += 2;
+			if (strcmp(Status[number], "Unpaid") == 0)
+			{
+				unpaid_bill = unpaid_bill + TotalBIllingAmount[number];
+				unpaidbill++;
+			}
+			else
+			{
+				paid_bill = paid_bill + TotalBIllingAmount[number];
+				paidbill++;
+			}
 			StringCopy(PaymentDate[number], bill, i);
 			number++;
 		}
+	}
+	void showtotalbills()
+	{
+		cout << "\t\t\tBills report\n\t\t\tTotal unpaid bills: " << unpaidbill;
+		cout << "\n\t\t\tTotal Unpaid amount :  " << unpaid_bill << endl;
+		cout << "\t\t\tTotal paid bills: " << paidbill;
+		cout << "\n\t\t\tTotal Paid amount :  " << paid_bill << endl;
 	}
 };
 
@@ -266,107 +288,30 @@ public:
 		{
 			getline(fin, customer);
 			i = 0;
-			index = 0;
-			for (; customer[i] != ','; i++)
-			{
-				CustomerId[number][index] = customer[i];
-				index++;
-			}
-			CustomerId[number][index] = '\0';
+			CopyTillComma(CustomerId[number], customer, i);
 			i += 2;
-			index = 0;
-			for (; customer[i] != ','; i++)
-			{
-				CustomerCNIC[number][index] = customer[i];
-				index++;
-			}
-			CustomerCNIC[number][index] = '\0';
+			CopyTillComma(CustomerCNIC[number], customer, i);
 			i += 2;
-			index = 0;
-			for (; customer[i] != ','; i++)
-			{
-				CustomerName[number][index] = customer[i];
-				index++;
-			}
-			CustomerName[number][index] = '\0';
+			CopyTillComma(CustomerName[number], customer, i);
 			i += 2;
-			index = 0;
-			for (; customer[i] != ','; i++)
-			{
-				address[number][index] = customer[i];
-				index++;
-			}
-			address[number][index] = '\0';
+			CopyTillComma(address[number], customer, i);
 			i += 2;
-			index = 0;
-			for (; customer[i] != ','; i++)
-			{
-				CustomerPhoneNo[number][index] = customer[i];
-				index++;
-			}
-			CustomerPhoneNo[number][index] = '\0';
+			CopyTillComma(CustomerPhoneNo[number], customer, i);
 			i += 2;
-			index = 0;
-			for (; customer[i] != ','; i++)
-			{
-				CustomerType[number][index] = customer[i];
-				index++;
-			}
-			CustomerType[number][index] = '\0';
+			CopyTillComma(CustomerType[number], customer, i);
 			i += 2;
-			index = 0;
-			for (; customer[i] != ','; i++)
-			{
-				MeterType[number][index] = customer[i];
-				index++;
-			}
-			MeterType[number][index] = '\0';
+			CopyTillComma(MeterType[number], customer, i);
 			i += 2;
-			index = 0;
-			for (; customer[i] != ','; i++)
-			{
-				ConnectionDate[number][index] = customer[i];
-				index++;
-			}
-			ConnectionDate[number][index] = '\0';
+			CopyTillComma(ConnectionDate[number], customer, i);
 			i += 2;
-			index = i;
-			for (; customer[i] != ','; i++)
-			{
-
-			}
-			int k = 1;
-			int Alternateofi = i - 1;
-			while (Alternateofi >= index)
-			{
-				RegularUnits[number] = RegularUnits[number] + ((static_cast<int>(customer[Alternateofi]) - 48) * k);
-				k = k * 10;
-				Alternateofi--;
-			}
+			RegularUnits[number] = CharacterToInteger(&RegularUnits[number], customer, i);
 			i += 2;
-			index = i;
-			for (; customer[i] != ','; i++)
-			{
-
-			}
-			k = 1;
-			Alternateofi = i - 1;
-			while (Alternateofi >= index)
-			{
-				PeakUnits[number] = PeakUnits[number] + ((static_cast<int>(customer[Alternateofi]) - 48) * k);
-				k = k * 10;
-				Alternateofi--;
-			}
+			PeakUnits[number] = CharacterToInteger(&PeakUnits[number], customer, i);
 			i += 2;
-			index = 0;
-			for (; customer[i] != '\0'; i++)
-			{
-				Status[number][index] = customer[i];
-				index++;
-			}
-			Status[number][index] = '\0';
+			StringCopy(Status[number], customer, i);
 			number++;
 		}
+		fin.close();
 	}
 	bool ReviewBill()
 	{
@@ -377,17 +322,17 @@ public:
 		int CurrentCustomer = 0;
 		int CurrentBill = 0;
 		Bill B1;
-		cout << "Enter the Customer Id: ";
+		cout << "\n\t\t\tEnter the Customer Id: ";
 		cin.getline(Id, 5);
-		cout << "Enter your CNIC: ";
+		cout << "\n\t\t\tEnter your CNIC: ";
 		cin.getline(CNIC, 14);
-		cout << "Enter the Meter Type: ";
-		cin.getline(metertype,2);
+		cout << "\n\t\t\tEnter the Meter Type: ";
+		cin.getline(metertype, 2);
 		for (int i = 0; i < totalCustomers; i++)
 		{
 			if (strcmp(CustomerId[i], Id) == 0)
 			{
-				if (strcmp(MeterType[i],metertype ) == 0 )
+				if (strcmp(MeterType[i], metertype) == 0)
 				{
 					CurrentCustomer = i;
 					check = true;
@@ -406,9 +351,10 @@ public:
 				CurrentBill = i;
 			}
 		}
-		cout << "Name: " << CustomerName[CurrentCustomer] << " CNIC: " << CustomerCNIC[CurrentCustomer] << " Id: " << CustomerId[CurrentCustomer] << " Addres: " << address[CurrentCustomer];
-		cout << " Phone Number: " << CustomerPhoneNo[CurrentCustomer] << " Regular Reading: " << B1.RegualrUnits[CurrentBill] << " Peak Units: " << B1.PeakUnits[CurrentBill] << " Total Bill: " << B1.TotalBIllingAmount[CurrentBill];
-		cout << " Sales Tax: " << B1.SalesTax[CurrentBill] << " Status: " << B1.Status[CurrentBill] << " Due Date: " << B1.DueDate[CurrentBill] << endl;
+		cout << "\n\n\n";
+		cout << " Name: " << CustomerName[CurrentCustomer] << "\n CNIC: " << CustomerCNIC[CurrentCustomer] << " \n Id: " << CustomerId[CurrentCustomer] << "\n Addres: " << address[CurrentCustomer];
+		cout << "\n Phone Number: " << CustomerPhoneNo[CurrentCustomer] << "\n Regular Reading: " << B1.RegualrUnits[CurrentBill] << "\n Peak Units: " << B1.PeakUnits[CurrentBill] << "\n Total Bill: " << B1.TotalBIllingAmount[CurrentBill];
+		cout << "\n Sales Tax: " << B1.SalesTax[CurrentBill] << "\n Status: " << B1.Status[CurrentBill] << "\n Due Date: " << B1.DueDate[CurrentBill] << endl;
 		return true;
 	}
 	bool CheckForCustomer(char* Id, char* CNIC)
@@ -489,82 +435,92 @@ public:
 	{
 		char customertype;
 		int Meter = 0;
-		cout << "For Single Phase Meter Press 1 \n For Three Phase Meter Press 3 \n";
+		cout << "\n\t\t\tSingle Phase(1)";
+		cout << "\n\t\t\tThree Phse Meter(3)";
+		cout << "\n\t\t\tPress number for the corresponding Meter Connection: ";
 		cin >> Meter;
 		while (Meter != 1 && Meter != 3)
 		{
-			cout << "For Single Phase Meter Press 1 \n For Three Phase Meter Press 3 \n";
-			cin >> Meter;
 			if (Meter != 1 && Meter != 3)
 			{
 				cout << "\t\t\tInvalid " << endl;
 			}
+			cout << "For Single Phase Meter Press 1 \n For Three Phase Meter Press 3 \n";
+			cin >> Meter;
 		}
 		if (Meter == 1)
 		{
-			cout << "For Commercial press C\n For Domestic press D" << endl;
+			cout << "\n\t\t\tPress \"C\" for Commercial: ";
+			cout << "\n\t\t\tPress\"D\" for Domestic: ";
+			cout << "\n\t\t\t ";
 			cin >> customertype;
 			while (customertype != 'D' && customertype != 'd' && customertype != 'C' && customertype != 'c')
 			{
-				cout << "\n\t\t\tEnter Coustmer Type :  D : Domestic  C : commercial : ";
-				cin >> customertype;
 				if (customertype != 'D' && customertype != 'd' && customertype != 'C' && customertype != 'c')
 				{
 					cout << "\t\t\tInvalid " << endl;
 				}
+				cout << "\n\t\t\tPress \"C\" for Commercial: ";
+				cout << "\n\t\t\tPress\"D\" for Domestic: ";
+				cout << "\n\t\t\t ";
+				cin >> customertype;
 			}
 			if (customertype == 'C' || customertype == 'c')
 			{
-				cout << "Enter the Regular Uit Price: ";
+				cout << "\n\t\t\tEnter the Regular Uit Price: ";
 				cin >> RegularUnitPrice[1];
-				cout << "Enter the Fixed Charges: ";
+				cout << "\n\t\t\tEnter the Fixed Charges: ";
 				cin >> FixedCharges[1];
-				cout << "Enter the Sales Tax: ";
+				cout << "\n\t\t\tEnter the Sales Tax: ";
 				cin >> TaxPerecent[1];
 			}
 			else if (customertype == 'D' || customertype == 'd')
 			{
-				cout << "Enter the Regular Uit Price: ";
+				cout << "\n\t\t\tEnter the Regular Uit Price: ";
 				cin >> RegularUnitPrice[0];
-				cout << "Enter the Fixed Charges: ";
+				cout << "\n\t\t\tEnter the Fixed Charges: ";
 				cin >> FixedCharges[0];
-				cout << "Enter the Sales Tax: ";
+				cout << "\n\t\t\tEnter the Sales Tax: ";
 				cin >> TaxPerecent[0];
 			}
 		}
 		else if (Meter == 3)
 		{
-			cout << "For Commercial press C\n For Domestic press D" << endl;
+			cout << "\n\t\t\tPress \"C\" for Commercial: ";
+			cout << "\n\t\t\tPress\"D\" for Domestic: ";
+			cout << "\n\t\t\t ";
 			cin >> customertype;
 			while (customertype != 'D' && customertype != 'd' && customertype != 'C' && customertype != 'c')
 			{
-				cout << "\n\t\t\tEnter Coustmer Type :  D : Domestic  C : commercial : ";
-				cin >> customertype;
 				if (customertype != 'D' && customertype != 'd' && customertype != 'C' && customertype != 'c')
 				{
 					cout << "\t\t\tInvalid " << endl;
 				}
+				cout << "\n\t\t\tPress \"C\" for Commercial: ";
+				cout << "\n\t\t\tPress\"D\" for Domestic: ";
+				cout << "\n\t\t\t ";
+				cin >> customertype;
 			}
 			if (customertype == 'C' || customertype == 'c')
 			{
-				cout << "Enter the Regular Uit Price: ";
+				cout << "\n\t\t\tEnter the Regular Uit Price: ";
 				cin >> RegularUnitPrice[3];
-				cout << "Enter the Peak Unit Price: ";
+				cout << "\n\t\t\tEnter the Peak Unit Price: ";
 				cin >> PeakUnitPrice[3];
-				cout << "Enter the Fixed Charges: ";
+				cout << "\n\t\t\tEnter the Fixed Charges: ";
 				cin >> FixedCharges[3];
-				cout << "Enter the Sales Tax: ";
+				cout << "\n\t\t\tEnter the Sales Tax: ";
 				cin >> TaxPerecent[3];
 			}
 			else if (customertype == 'D' || customertype == 'd')
 			{
-				cout << "Enter the Regular Uit Price: ";
+				cout << "\n\t\t\tEnter the Regular Uit Price: ";
 				cin >> RegularUnitPrice[2];
-				cout << "Enter the Peak Unit Price: ";
+				cout << "\n\t\t\tEnter the Peak Unit Price: ";
 				cin >> PeakUnitPrice[2];
-				cout << "Enter the Fixed Charges: ";
+				cout << "\n\t\t\tEnter the Fixed Charges: ";
 				cin >> FixedCharges[2];
-				cout << "Enter the Sales Tax: ";
+				cout << "\n\t\t\tEnter the Sales Tax: ";
 				cin >> TaxPerecent[2];
 			}
 		}
@@ -616,33 +572,18 @@ public:
 			PhoneNumber[i] = new char[13];
 		}
 		fin.close();
-		int i = 0, j = 0, k = 0;
+		int number = 0, i = 0;
 		fin.open("Employee.txt");
-		while (i < count)
+		while (number < totalEmployees)
 		{
-			j = 0;
+			i = 0;
 			getline(fin, employee);
-			for (k = 0; employee[j] != ','; j++)
-			{
-				Username[i][k] = employee[j];
-				k++;
-			}
-			Username[i][k] = '\0';
-			j += 2;
-			for (k = 0; employee[j] != ','; j++)
-			{
-				Password[i][k] = employee[j];
-				k++;
-			}
-			Password[i][k] = '\0';
-			j += 2;
-			for (k = 0; employee[j] != '\0'; j++)
-			{
-				PhoneNumber[i][k] = employee[j];
-				k++;
-			}
-			PhoneNumber[i][k] = '\0';
-			i++;
+			CopyTillComma(Username[number], employee, i);
+			i += 2;
+			CopyTillComma(Password[number], employee, i);
+			i += 2;
+			StringCopy(PhoneNumber[number], employee, i);
+			number++;
 		}
 		fin.close();
 	}
@@ -668,7 +609,7 @@ public:
 		}
 		return check;
 	}
-	bool ChangePassword(char* name,char* password,char* newpassword)
+	bool ChangePassword(char* name, char* password, char* newpassword)
 	{
 		bool check = false;
 		for (int i = 0; i < totalEmployees; i++)
@@ -747,19 +688,19 @@ public:
 		}
 		if (!check)
 		{
-			cout << "No customer with this Id exists " << endl;
+			cout << "\n\t\t\tNo customer with this Id exists " << endl;
 			return false;
 		}
 		if (C1.MeterType[currentCustomer][0] == '1')
 		{
-			cout << "1" << endl;
-			cout << "Enter the current reading ";
+			cout << "\n\t\t\tEnter the current reading ";
 			cin >> ReadingRegular;
+			cin.ignore();
 			B1.RegualrUnits[CurrentBill] = ReadingRegular;
 			if (C1.CustomerType[currentCustomer][0] == 'D' || C1.CustomerType[currentCustomer][0] == 'd')
 			{
 				B1.CostofElectricity[CurrentBill] = ((B1.RegualrUnits[CurrentBill] - C1.RegularUnits[currentCustomer]) * T1.RegularUnitPrice[0]);
-				B1.TotalBIllingAmount[CurrentBill] = ((B1.RegualrUnits[CurrentBill] - C1.RegularUnits[currentCustomer] ) * T1.RegularUnitPrice[0]) + T1.FixedCharges[0];
+				B1.TotalBIllingAmount[CurrentBill] = ((B1.RegualrUnits[CurrentBill] - C1.RegularUnits[currentCustomer]) * T1.RegularUnitPrice[0]) + T1.FixedCharges[0];
 				B1.SalesTax[CurrentBill] = (T1.TaxPerecent[0] * B1.TotalBIllingAmount[CurrentBill]) / 100;
 				B1.TotalBIllingAmount[CurrentBill] = B1.TotalBIllingAmount[CurrentBill] + ((T1.TaxPerecent[0] * B1.TotalBIllingAmount[CurrentBill]) / 100);
 				B1.fixedCHarges[CurrentBill] = T1.FixedCharges[0];
@@ -775,16 +716,18 @@ public:
 		}
 		else
 		{
-			cout << "Enter the current reading ";
+			cout << "\n\t\t\tEnter the current reading ";
 			cin >> ReadingRegular;
+			cin.ignore();
 			B1.RegualrUnits[CurrentBill] = ReadingRegular;
-			cout << "Enter the Peak Reading ";
+			cout << "\n\t\t\tEnter the Peak Reading ";
 			cin >> ReadingPeak;
+			cin.ignore();
 			B1.PeakUnits[CurrentBill] = ReadingPeak;
 			if (C1.CustomerType[currentCustomer][0] == 'd' || C1.CustomerType[currentCustomer][0] == 'D')
 			{
-				B1.CostofElectricity[CurrentBill] = ((B1.RegualrUnits[CurrentBill] - C1.RegularUnits[currentCustomer] ) * T1.RegularUnitPrice[2]) + ((B1.PeakUnits[CurrentBill] - C1.PeakUnits[currentCustomer]) * T1.PeakUnitPrice[2]);
-				B1.TotalBIllingAmount[CurrentBill] = ((B1.RegualrUnits[CurrentBill] - C1.RegularUnits[currentCustomer]) * T1.RegularUnitPrice[2]) + ((B1.PeakUnits[CurrentBill] - C1.PeakUnits[currentCustomer]) * T1.PeakUnitPrice[2])+ T1.FixedCharges[2];
+				B1.CostofElectricity[CurrentBill] = ((B1.RegualrUnits[CurrentBill] - C1.RegularUnits[currentCustomer]) * T1.RegularUnitPrice[2]) + ((B1.PeakUnits[CurrentBill] - C1.PeakUnits[currentCustomer]) * T1.PeakUnitPrice[2]);
+				B1.TotalBIllingAmount[CurrentBill] = ((B1.RegualrUnits[CurrentBill] - C1.RegularUnits[currentCustomer]) * T1.RegularUnitPrice[2]) + ((B1.PeakUnits[CurrentBill] - C1.PeakUnits[currentCustomer]) * T1.PeakUnitPrice[2]) + T1.FixedCharges[2];
 				B1.SalesTax[CurrentBill] = ((T1.TaxPerecent[2] * B1.TotalBIllingAmount[CurrentBill]) / 100);
 				B1.TotalBIllingAmount[CurrentBill] = B1.TotalBIllingAmount[CurrentBill] + ((T1.TaxPerecent[2] * B1.TotalBIllingAmount[CurrentBill]) / 100);
 				B1.fixedCHarges[CurrentBill] = T1.FixedCharges[2];
@@ -798,12 +741,15 @@ public:
 				B1.fixedCHarges[CurrentBill] = T1.FixedCharges[3];
 			}
 		}
-		cout << "Enter the reading day: ";
+		cout << "\n\t\t\tEnter the reading day: ";
 		cin >> day;
-		cout << "Enter the month: ";
+		cin.ignore();
+		cout << "\n\t\t\tEnter the month: ";
 		cin >> month;
-		cout << "Enter the year: ";
+		cin.ignore();
+		cout << "\n\t\t\tEnter the year: ";
 		cin >> year;
+		cin.ignore();
 		due_day = day;
 		due_month = month;
 		due_year = year;
@@ -817,15 +763,15 @@ public:
 				due_year++;
 			}
 		}
-		StringCopy(B1.Status[CurrentBill], status); 
+		StringCopy(B1.Status[CurrentBill], status);
 		fout.open("BillingInfo.txt", ios::app);
 		fout << B1.CustomerId[CurrentBill] << ", " << month << ", " << ReadingRegular << ", " << ReadingPeak << ", " << day << "/" << month << "/" << year << ", ";
 		fout << B1.CostofElectricity[CurrentBill] << ", " << B1.SalesTax[CurrentBill] << ", " << B1.fixedCHarges[CurrentBill] << ", " << B1.TotalBIllingAmount[CurrentBill] << ", ";
-		fout << due_day << "/" << due_month << "/" << due_year << ", " << B1.Status[CurrentBill] <<", 00/00/0000" << endl;
+		fout << due_day << "/" << due_month << "/" << due_year << ", " << B1.Status[CurrentBill] << ", 00/00/0000" << endl;
 		cout << B1.TotalBIllingAmount[CurrentBill];
 		return true;
 	}
-	bool ReveiveBill()
+	bool ReceiveBill()
 	{
 		ofstream fout;
 		Customer C1;
@@ -850,7 +796,7 @@ public:
 		}
 		if (!check)
 		{
-			
+
 			return false;
 		}
 		for (int i = 0; i < B1.totalBills; i++)
@@ -867,7 +813,7 @@ public:
 		{
 			C1.RegularUnits[CurrentCustomer] = B1.RegualrUnits[CurrentBill];
 			C1.PeakUnits[CurrentCustomer] = B1.PeakUnits[CurrentBill];
-			StringCopy(B1.Status[CurrentBill],status);
+			StringCopy(B1.Status[CurrentBill], status);
 			StringCopy(C1.Status[CurrentCustomer], status);
 			cout << "Enter the current date(dd/mm/yyyy)";
 			cin.getline(date, 11);
@@ -876,14 +822,14 @@ public:
 			for (int i = 0; i < C1.totalCustomers; i++)
 			{
 				fout << C1.CustomerId[i] << ", " << C1.CustomerCNIC[i] << ", " << C1.CustomerName[i] << ", " << C1.address[i] << ", " << C1.CustomerPhoneNo[i] << ", "
-					 << C1.CustomerType[i] << ", " << C1.MeterType[i] << ", " << C1.ConnectionDate[i] << ", " << C1.RegularUnits[i]
-					 << ", " << C1.PeakUnits[i] <<", " << C1.Status[i] << endl;
+					<< C1.CustomerType[i] << ", " << C1.MeterType[i] << ", " << C1.ConnectionDate[i] << ", " << C1.RegularUnits[i]
+					<< ", " << C1.PeakUnits[i] << ", " << C1.Status[i] << endl;
 			}
 			fout.close();
 			fout.open("BillingInfo.txt");
 			for (int i = 0; i < B1.totalBills; i++)
 			{
-				fout<< B1.CustomerId[i] << ", " << B1.Month[i] << ", " << B1.RegualrUnits[i] << ", " << B1.PeakUnits[i] << ", " << B1.ReadingDate[i] << ", ";
+				fout << B1.CustomerId[i] << ", " << B1.Month[i] << ", " << B1.RegualrUnits[i] << ", " << B1.PeakUnits[i] << ", " << B1.ReadingDate[i] << ", ";
 				fout << B1.CostofElectricity[i] << ", " << B1.SalesTax[i] << ", " << B1.fixedCHarges[i] << ", " << B1.TotalBIllingAmount[i] << ", ";
 				fout << B1.DueDate[i] << ", " << B1.Status[i] << ", " << B1.PaymentDate[i] << endl;
 			}
@@ -897,54 +843,71 @@ public:
 		char name[30];
 		ifstream fin;
 		ofstream fout;
-		fout.open("CustomerInfo.txt");
 		srand(time(0));
 		int id = (rand() % 10000) + 1000;
 		char cnic[14];
 		char address[40];
-		string phonenumber;
-		char coustmertype[12];
+		char phonenumber[12];
+		char customer[11];
 		char metertype;
-		string connectiondate;
+		char connectiondate[11];
 		cout << "\n\t\t\tEnter Coustmer cnic : ";
-		cin.getline(cnic,14);
+		cin.getline(cnic, 14);
 		cout << "\n\t\t\tEnter Coustmer Name : ";
 		cin.getline(name, 30);
 		cout << "\n\t\t\tEnter Coustmer Address : ";
 		cin.getline(address, 30);
 		cout << "\n\t\t\tEnter Coustmer Phone No : ";
-		getline(cin,phonenumber);
+		cin.getline(phonenumber, 12);
 		char customertype;
 		int Meter = 0;
-		cout << "For Single Phase Meter Press 1 \nFor Three Phase Meter Press 3 \n";
+		cout << "\n\t\t\tSingle Phase Meter(1)";
+		cout << "\n\t\t\tThree Phase Meter(3)";
+		cout << "\n\t\t\tPress the number for the correspoding Meter Connection : ";
 		cin >> Meter;
+		cin.ignore();
 		while (Meter != 1 && Meter != 3)
 		{
-			cout << "For Single Phase Meter Press 1 \n For Three Phase Meter Press 3 \n";
-			cin >> Meter;
 			if (Meter != 1 && Meter != 3)
 			{
-				cout << "\t\t\tInvalid " << endl;
+				cout << "\n\t\t\tInvalid " << endl;
 			}
+			cout << "\n\t\t\tPress the number for the correspoding Meter Connection : ";
+			cin >> Meter;
+			cin.ignore();
 		}
-		cout << "For Commercial press C\nFor Domestic press D" << endl;
+		cout << "\n\t\t\tPress \"C\" for Commercial";
+		cout << "\n\t\t\tPress \"D\" for Domestic";
+		cout << "\n\t\t\t ";
 		cin >> customertype;
+		cin.ignore();
 		while (customertype != 'D' && customertype != 'd' && customertype != 'C' && customertype != 'c')
 		{
-			cout << "\n\t\t\tEnter Coustmer Type :  D : Domestic  C : commercial : ";
-			cin >> customertype;
 			if (customertype != 'D' && customertype != 'd' && customertype != 'C' && customertype != 'c')
 			{
 				cout << "\t\t\tInvalid " << endl;
 			}
+			cout << "\n\t\t\tPress \"C\" for Commercial";
+			cout << "\n\t\t\tPress \"D\" for Domestic";
+			cout << "\n\t\t\t ";
+			cin >> customertype;
+			cin.ignore();
+		}
+		if (customertype == 'c' || customertype == 'C')
+		{
+			strcpy_s(customer, "Commercial");
+		}
+		else
+		{
+			strcpy_s(customer, "Domestic");
 		}
 		int day, month, year;
-		cout << "Enter year: ";
-		cin >> year;
-		cout << "Enter Month: ";
-		cin >> month;
-		cout << "Enter day: ";
+		cout << "\n\t\t\tEnter day: ";
 		cin >> day;
+		cout << "\n\t\t\tEnter Month: ";
+		cin >> month;
+		cout << "\n\t\t\tEnter year: ";
+		cin >> year;
 		int connections = 0;
 		for (int i = 0; i < C1.totalCustomers; i++)
 		{
@@ -959,8 +922,8 @@ public:
 		}
 		else
 		{
-			fout.open("CustomerInfo.txt");
-			fout << id << ", " << cnic << ", " << name << ", " << address << ", " << phonenumber << ", " << coustmertype << ", " << metertype << ", " << day << "/" << month << "/" << year << ", " << 0 << ", " << 0 << ", Paid"<< endl;
+			fout.open("CustomerInfo.txt", ios::app);
+			fout << id << ", " << cnic << ", " << name << ", " << address << ", " << phonenumber << ", " << customer << ", " << Meter << ", " << day << "/" << month << "/" << year << ", " << "0" << ", " << "0" << ", Paid" << endl;
 			fout.close();
 			return true;
 		}
@@ -977,7 +940,8 @@ void menu()
 	cout << "\n\t\t\t 3) Update Terrif Information ";
 	cout << "\n\t\t\t 4) Update Bill Paid Status  ";
 	cout << "\n\t\t\t 5) Change Password ";
-	cout << "\n\t\t\t 6) Exit ";
+	cout << "\n\t\t\t 6) View Bills Report ";
+	cout << "\n\t\t\t 7) Exit ";
 	cout << "\n\t\t\t ";
 }
 
@@ -988,7 +952,7 @@ int main()
 	TarrifTax T1;
 	int controlcheck = 0;
 	int function = 0;
-	cout << "If you are an Employee press 1. If you are a Customer press 2 " ;
+	cout << "If you are an Employee press 1. If you are a Customer press 2 ";
 	cin >> controlcheck;
 	cin.ignore();
 	bool login = false;
@@ -1007,104 +971,117 @@ int main()
 	{
 		while (!login)
 		{
-			cout << "Enter Your Name : ";
+			cout << "\n\t\t\tEnter Your Name : ";
 			cin.getline(name, 25);
-			cout << "Enter Password : ";
+			cout << "\n\t\t\tEnter Password : ";
 			cin.getline(password, 10);
-			login = E1.checkEmployee(name,password);
+			login = E1.checkEmployee(name, password);
 			if (!login)
 			{
-				cout << "Incorrect password or name \n";
+				cout << "\n\t\t\tIncorrect password or name \n";
 			}
 		}
-		menu();
-		cin >> function;
-		cin.ignore();
-		if (function == 1)
+		while (true)
 		{
-			system("cls");
-			cout << "\n\t\t\tNew Connection" << endl;
-			newconnection = E1.AddCustomer();
+			menu();
+			cin >> function;
+			cin.ignore();
+			if (function == 1)
+			{
+				system("cls");
+				cout << "\n\t\t\tNew Connection" << endl;
+				newconnection = E1.AddCustomer();
 				if (!newconnection)
 				{
-					cout << "Cannot add more than three customers " << endl;
-				}
-		}
-		if (function == 2)
-		{
-			system("cls");
-			E1.UpdateBillInfo();
-		}
-		else if (function == 3)
-		{
-			system("cls");
-			cout << "\n\t\t\tUpdate Tarrif\n";
-			UpdateTarrif = T1.UpdateTarrif();
-			cout << "Operation successfull" << endl;
-		}
-		else if (function == 4)
-		{
-			system("cls");
-			cout << "\n\t\t\tBill Status\n";
-			while (!BillStatus)
-			{
-				BillStatus = E1.ReveiveBill();
-				if (BillStatus)
-				{
-					cout << "Status Updated successfully " << endl;
-				}
-				else
-				{
-					system("cls");
-					cout << "No customer with this Id exixts " << endl;
+					cout << "\n\t\t\tCannot add more than three customers " << endl;
 				}
 			}
-			
-		}
-		else if (function == 5)
-		{
-			system("cls");
-			while (!PasswordChange)
+			else if (function == 2)
 			{
-				cout << "\n\t\t\t Password Change \n";
-				cout << "Enter Your Name : ";
-				cin.getline(name, 25);
-				cout << "Enter Password : ";
-				cin.getline(password, 10);
-				cout << "Enter new password (Maximum length 10) : ";
-				cin.getline(newpassword, 10);
-				PasswordChange = E1.ChangePassword(name, password, newpassword);
-				if (PasswordChange)
-				{
-					cout << "Password changed successfully " << endl;
-				}
-				else
-				{
-					system("cls");
-					cout << "Incorrect Password or name " << endl;
-				}
+				system("cls");
+				system("cls");
+				cout << "\n\t\t\tUddate Bill Info\n";
+				E1.UpdateBillInfo();
 			}
-		}
-		else if (function == 6)
-		{
-			system("pause");
-			return 0;
-		}
+			else if (function == 3)
+			{
+				system("cls");
+				cout << "\n\t\t\tUpdate Tarrif\n";
+				UpdateTarrif = T1.UpdateTarrif();
+				cout << "\n\t\t\tOperation successfull" << endl;
+			}
+			else if (function == 4)
+			{
+				system("cls");
+				cout << "\n\t\t\tUpdate Bill Status\n";
+				while (!BillStatus)
+				{
+					BillStatus = E1.ReceiveBill();
+					if (BillStatus)
+					{
+						cout << "\n\t\t\tStatus Updated successfully " << endl;
+					}
+					else
+					{
+						system("cls");
+						cout << "\n\t\t\tNo customer with this Id exixts " << endl;
+					}
+				}
 
+			}
+			else if (function == 5)
+			{
+				system("cls");
+				while (!PasswordChange)
+				{
+					cout << "\n\t\t\t Password Change \n";
+					cout << "\n\t\t\tEnter Your Name : ";
+					cin.getline(name, 25);
+					cout << "\n\t\t\tEnter Password : ";
+					cin.getline(password, 10);
+					cout << "\n\t\t\tEnter new password (Maximum length 10) : ";
+					cin.getline(newpassword, 10);
+					PasswordChange = E1.ChangePassword(name, password, newpassword);
+					if (PasswordChange)
+					{
+						cout << "\n\t\t\tPassword changed successfully " << endl;
+					}
+					else
+					{
+						system("cls");
+						cout << "\n\t\t\tIncorrect Password or name " << endl;
+					}
+				}
+			}
+			else if (function == 6) {
+				system("cls");
+				Bill b2;
+				b2.showtotalbills();
+
+
+			}
+			else if (function == 7)
+			{
+				system("pause");
+				return 0;
+			}
+			cout << "\t\t\t";
+			system("pause");
+		}
 	}
 	else if (controlcheck == 2)
 	{
-		while(!CustomerLogin)
+		while (!CustomerLogin)
 		{
-			cout << "Enter the customer ID ";
+			cout << "\n\t\t\tEnter the customer ID ";
 			cin.getline(id, 5);
-			cout << "Enter Your CNIC ";
+			cout << "\n\t\t\tEnter Your CNIC ";
 			cin.getline(cnic, 14);
-			CustomerLogin = C1.CheckForCustomer(id,cnic);
+			CustomerLogin = C1.CheckForCustomer(id, cnic);
 			if (!CustomerLogin)
 			{
 				system("cls");
-				cout << "Incorrect ID or CNIC " << endl;
+				cout << "\n\t\t\tIncorrect ID or CNIC " << endl;
 			}
 		}
 		system("cls");
@@ -1115,12 +1092,12 @@ int main()
 			BillView = C1.ReviewBill();
 			if (BillView)
 			{
-				cout << "Operation successfull" << endl;
+				cout << "\n\t\t\tOperation successfull" << endl;
 			}
 			else
 			{
 				system("cls");
-				cout << "Incorrect Id/CNIC/Meter Type " << endl;
+				cout << "\n\t\t\tIncorrect Id/CNIC/Meter Type " << endl;
 			}
 		}
 
