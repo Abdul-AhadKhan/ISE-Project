@@ -1,0 +1,3 @@
+2784, 3520266305645, Abdul Ahad, House 114 Township Lahore, 0334 8752265, Commercial, 3, 12January2022, 400, 200, Paid
+2785, 3520287223361, Hasan Khan, House 115 Township Lahore, 0324 4891944, Domestic, 3, 12January2022, 300, 50, Paid
+9136, 3520235079201, Hammad Shahid, house 335, 0199191, Commercial, Three Phase, 30/05/2022, 200, 100, Paid
